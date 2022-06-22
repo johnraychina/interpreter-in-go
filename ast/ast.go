@@ -3,6 +3,7 @@ package ast
 import (
 	"bytes"
 	"interpreter-in-go/token"
+	"strings"
 )
 
 type Node interface {
@@ -115,7 +116,6 @@ func (es *ExpressionStatement) String() string {
 	return ""
 }
 
-// todo 为何已经有了token还要定义expression？
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64
@@ -163,4 +163,132 @@ func (oe *InfixExpression) String() string {
 	out.WriteString(")")
 
 	return out.String()
+}
+
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Boolean) TokenLiteral() string {
+	return b.Token.Literal
+}
+
+func (b *Boolean) String() string {
+	return b.Token.Literal
+}
+
+func (b *Boolean) expressionNode() {
+}
+
+// todo 想想为何if语句块作为表达式，而非语句？
+type IfExpression struct {
+	Token       token.Token // the 'if' token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+
+func (ie *IfExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if")
+	out.WriteString(ie.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(ie.Consequence.String())
+
+	if ie.Alternative != nil {
+		out.WriteString("else ")
+		out.WriteString(ie.Alternative.String())
+	}
+
+	return out.String()
+}
+
+func (ie *IfExpression) expressionNode() {
+}
+
+type BlockStatement struct {
+	Token      token.Token // { token
+	Statements []Statement
+}
+
+func (b *BlockStatement) TokenLiteral() string {
+	return b.Token.Literal
+}
+
+func (b *BlockStatement) String() string {
+	var out bytes.Buffer
+
+	for _, s := range b.Statements {
+		out.WriteString(s.String())
+	}
+
+	return out.String()
+}
+
+func (b *BlockStatement) statementNode() {
+}
+
+type FunctionLiteral struct {
+	Token      token.Token // the 'fn' token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fl *FunctionLiteral) TokenLiteral() string {
+	return fl.Token.Literal
+}
+
+func (fl *FunctionLiteral) String() string {
+	var out bytes.Buffer
+
+	var params []string
+	for _, p := range fl.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(fl.TokenLiteral())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") ")
+	out.WriteString(fl.Body.String())
+
+	return out.String()
+}
+
+func (fl *FunctionLiteral) expressionNode() {
+}
+
+type CallExpression struct {
+	Token     token.Token
+	Function  Expression
+	Arguments []Expression
+}
+
+func (c *CallExpression) TokenLiteral() string {
+	return c.Token.Literal
+}
+
+func (c *CallExpression) String() string {
+	var out bytes.Buffer
+
+	var args []string
+	for _, a := range c.Arguments {
+		args = append(args, a.String())
+	}
+
+	out.WriteString(c.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
+
+	return out.String()
+}
+
+func (c *CallExpression) expressionNode() {
 }
