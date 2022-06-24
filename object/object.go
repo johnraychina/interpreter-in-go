@@ -10,7 +10,7 @@ const (
 	NULL_OBJ    = "NULL"
 )
 
-type ObjectInterface interface {
+type Object interface {
 	Type() ObjectType
 	Inspect() string
 }
