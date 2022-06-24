@@ -26,12 +26,12 @@ func decIdent() {
 }
 
 func trace(msg string) string {
-	incIdent()
-	tracePrint("BEGIN " + msg)
+	//incIdent()
+	//tracePrint("BEGIN " + msg)
 	return msg
 }
 
 func untrace(msg string) {
-	tracePrint("END " + msg)
-	decIdent()
+	//tracePrint("END " + msg)
+	//decIdent()
 }
