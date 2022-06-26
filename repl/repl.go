@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"interpreter-in-go/evaluator"
 	"interpreter-in-go/lexer"
+	"interpreter-in-go/object"
 	"interpreter-in-go/parser"
 	"io"
 )
@@ -17,6 +18,7 @@ func Start(in io.Reader, out io.Writer) {
 	for {
 		fmt.Printf(PROMPT)
 		scanned := scanner.Scan()
+		env := object.NewEnvironment()
 		if !scanned {
 			return
 		}
@@ -31,7 +33,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		result := evaluator.Eval(program)
+		result := evaluator.Eval(program, env)
 		if result != nil {
 			io.WriteString(out, result.Inspect())
 			io.WriteString(out, "\n")
