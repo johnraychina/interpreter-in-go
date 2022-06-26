@@ -30,7 +30,7 @@ const (
 	SUM         // +
 	PRODUCT     // *
 	PREFIX      // -X or !X
-	CALL        // myFunction(X)
+	CALL        // myFuonction(X)
 )
 
 var precedences = map[token.TokenType]int{
