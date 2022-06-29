@@ -1,6 +1,9 @@
 package lexer
 
-import "interpreter-in-go/token"
+import (
+	"interpreter-in-go/token"
+	"strings"
+)
 
 type Lexer struct {
 	input        string
@@ -21,6 +24,10 @@ func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 
 	switch l.ch {
+	case '"':
+		// read to the "
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	case '=':
 		if l.peekChar() == '=' {
 			ch := l.ch
@@ -120,6 +127,34 @@ func (l *Lexer) readNumber() string {
 		l.readChar()
 	}
 	return l.input[position:l.position]
+}
+
+func (l *Lexer) readString() string {
+	pos := l.position + 1
+	var slashPos []int
+	for {
+		l.readChar()
+		if l.ch == '\\' {
+			slashPos = append(slashPos, l.position)
+			l.readChar() // support escaping
+		} else if l.ch == '"' {
+			break
+		}
+
+	}
+
+	if len(slashPos) == 0 {
+		return l.input[pos:l.position]
+	} else {
+		var result []string
+		for _, p := range slashPos {
+			result = append(result, l.input[pos:p])
+			pos = p + 1
+		}
+		result = append(result, l.input[pos:l.position])
+
+		return strings.Join(result, "")
+	}
 }
 
 func isLetter(ch byte) bool {
